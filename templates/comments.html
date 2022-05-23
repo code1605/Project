@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% load templatetags %}
+{% block body %}
+{% block header %}Comments {% endblock %}
+<div class="section-light py-3 chat_app">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="card bg-none b-none">
+                    <div class="card-header bline bg-none">
+                        <h3 class="card-title">{{ project.project_name }} Channel <small> {{ project.project_start_date }} - {{ project.project_end_date }}</small></h3>
+                        <div class="card-options">
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#addcomment"><i class="fa fa-plus"></i></button>
+                            <a href="{% url 'all_comments'%}{{project.id}}" class="p-1"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </div>                        
+                    <div class="chat_windows">
+                        
+                        <ul class="mb-0" style="height: calc(100vh - 150px) !important">
+                            {% for comment in comments %}
+
+                            {% if comment.author == user %}
+                                <li class="my-message">
+                                    <div class="message">
+                                        <p class="bg-light-gray">{{comment.comment}}</p>
+                                        
+                                        <span class="time">{{comment.date}}</span>
+                                    </div>
+                                </li>
+                            {% endif %}
+
+                                {% if comment.author != user %}
+
+                                    <li class="other-message">
+                                        <img class="avatar mr-3" src="http://127.0.0.1:8000{{ comment.author.image.url }}" alt="">
+                                        <div class="message">
+                                            <p class="bg-light-blue">{{comment.comment}}</p>
+                                            <span class="time" >{{comment.date}}</span>
+                                        </div>
+                                    </li>  
+                                    
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>    
+
+
+<div class="modal fade" id="addcomment" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="title" id="defaultModalLabel">Comment</h6>
+            </div>
+
+            <form  method="post" action="{% url 'add_comment' %}">
+                {% csrf_token %}
+                <div class="chat-message clearfix">
+                
+                        <div class="input-group mb-0">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <textarea class="form-control" name="comment" placeholder="Enter comment here..."></textarea>
+                            </div>
+                            </div>
+                            <input type="text" value="{{project.id}}" name="project_id" style="display: none">
+                            
+                        </div>
+                    
+                </div>
+                <input class="btn btn-primary btn-block" type="submit" value="Comment">
+        </form>
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}

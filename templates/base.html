@@ -1,5 +1,6 @@
 <!doctype html>
 {% load static %}
+{% load templatetags %}
 <html lang="en" dir="ltr">
 
 <!-- soccer/project/project-dashboard.html  07 Jan 2020 03:41:02 GMT -->
@@ -10,21 +11,96 @@
 
 <link rel="icon" href="favicon.ico" type="image/x-icon"/>
 
-<title>:: PSPS :: Project Dashboard</title>
+<title>Project Management Dashboard</title>
 
 <!-- Bootstrap Core and vandor -->
 <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}" />
 <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}">
 <link rel="stylesheet" href="{% static 'assets/plugins/nestable/jquery-nestable.css' %}"/>
+<link rel="stylesheet" href="{% static 'assets/plugins/dropify/css/dropify.min.css' %}">
 
 <!-- Core css -->
 <link rel="stylesheet" href="{% static 'assets/css/main.css' %}"/>
+<link rel="stylesheet" href="{% static 'assets/css/index.css' %}"/>
 <link rel="stylesheet" href="{% static 'assets/css/theme1.css' %}"/>
     {% block styles %}
     {% endblock %}
+
+    
+<script>
+
+    function reload(project_name){
+        
+        if(document.getElementById('card_progress')){
+            document.getElementById('card_progress').remove();
+            var container = document.getElementById("progress_value")
+            let clonedNode = document.getElementById(`${project_name}_percent`).cloneNode(true);
+            clonedNode.setAttribute("id", "card_progress")
+            clonedNode.style.display = "block";
+            container.appendChild(clonedNode)
+
+        }
+
+        
+    //this line is to watch the result in console , you can remove it later	
+        console.log("Refreshed"); 
+    }
+    // function to update the innerHTML div with id emoji
+    function updateEmoji(sentiment, project_name, progress, update_progress=false) {
+        console.log('UPDATING SENTIMENT', sentiment);
+        if(sentiment < 0.45) {
+            sentiment = "Needs Urgent Attention"
+        } else if(sentiment >= 0.45 && sentiment < 0.5) {
+            sentiment = "Needs Continuous Monitoring"
+        } else if(sentiment >= 0.50 && sentiment < 0.55) {
+            sentiment = "Average"
+        }else{
+            sentiment = "On Track"
+        }
+        emoji_neutral = `<span style='font-size:164px;'>&#128528;</span>`;
+        emoji_happy = `<span style='font-size:164px;'>&#128515;</span>`;
+        emoji_sad = `<span style='font-size:164px;'>&#128542;</span>`;
+        emoji_angry = `<span style='font-size:164px;'>&#128545;</span>`;
+
+        // switch statement to set the emoji based on the sentiment
+        switch (sentiment) {
+            case "Average":
+                document.getElementById("emoji").innerHTML = emoji_neutral;
+                break;
+            case "happy":
+                document.getElementById("emoji").innerHTML = emoji_happy;
+                break;
+            case "Needs Continuous Monitoring":
+                document.getElementById("emoji").innerHTML = emoji_sad;
+                break;
+            case "Needs Urgent Attention":
+                document.getElementById("emoji").innerHTML = emoji_angry;
+                break;
+            default:
+                document.getElementById("emoji").innerHTML = emoji_happy;
+        }
+
+        // set the project name
+        document.getElementById("project_name").innerHTML = `${project_name} Progress`;
+        document.getElementById("highlighted_sentiment").innerHTML = `${project_name} : ${sentiment}`;
+        // gget element with id sentiment_value and set the attribute data-percentage to progress 
+        console.log("SETTING DATA PERCENTAGE ", progress);
+        if(update_progress){
+            reload(project_name)
+        }
+        
+
+    }
+
+</script>
+
+   
 </head>
 
+
 <body class="font-montserrat">
+
+  
 <!-- Page Loader -->
 <div class="page-loader-wrapper">
     <div class="loader">
@@ -35,18 +111,8 @@
 
     <div id="header_top" class="header_top">
         <div class="container">
-            <div class="hleft">
-                <a class="header-brand" href="index-2.html"><i class="fa fa-soccer-ball-o brand-logo"></i></a>
-                <div class="dropdown">
-                    <a href="javascript:void(0)" class="nav-link user_btn"><img class="avatar" src="{% static 'assets/images/user.png' %}" alt="" data-toggle="tooltip" data-placement="right" title="User Menu"/></a>
-                    <a href="page-search.html" class="nav-link icon xs-hide"><i class="fa fa-search"></i></a>
-                    <a href="app-contact.html"  class="nav-link icon xs-hide"><i class="fa fa-id-card-o"></i></a>
-                    <a href="app-chat.html"  class="nav-link icon xs-hide"><i class="fa fa-comments-o"></i></a>
-                  </div>
-            </div>
             <div class="hright">
                 <div class="dropdown">
-                    <a href="javascript:void(0)" class="nav-link icon settingbar"><i class="fa fa-gear fa-spin" data-toggle="tooltip" data-placement="right" title="Settings"></i></a>
                     <a href="javascript:void(0)" class="nav-link icon menu_toggle"><i class="fa  fa-align-left"></i></a>
                 </div>
             </div>
@@ -293,24 +359,12 @@
     </div>
 
     <div id="left-sidebar" class="sidebar ">
-        <h5 class="brand-name">Project Status Predicting System <a href="javascript:void(0)" class="menu_option float-right"><i class="icon-grid font-16" data-toggle="tooltip" data-placement="left" title="Grid & List Toggle"></i></a></h5>
+        <h5 class="brand-name">Project Status Predicting System </h5>
         <nav id="left-sidebar-nav" class="sidebar-nav">
             <ul class="metismenu">
                 <li class="g_heading">Project</li>
-                <li><a href="index-2.html"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
-                <li><a href="project-ticket.html"><i class="fa fa-list-ul"></i><span>Projects list</span></a></li>
-                <li><a href="project-ticket-details.html"><i class="icon-tag"></i><span>Project Details</span></a></li>
-                <li class="g_heading">App</li>
-                <li><a href="app-chat.html"><i class="fa fa-comments"></i><span>Chat</span></a></li>
-                    <a href="javascript:void(0)" class="has-arrow arrow-c"><i class="fa fa-lock"></i><span>Authentication</span></a>
-                    <ul>
-                        <li><a href="login.html">Login</a></li>
-                        <li><a href="register.html">Register</a></li>
-                        <li><a href="forgot-password.html">Forgot password</a></li>
-                        <li><a href="404.html">404 error</a></li>
-                        <li><a href="500.html">500 error</a></li>
-                    </ul>
-                </li>
+                <li><a href="{% url 'home' %}"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
+                <li><a href="{% url 'view_project' %}"><i class="fa fa-list-ol"></i><span>Projects</span></a></li>
             </ul>
         </nav>
     </div>
@@ -320,14 +374,14 @@
             <div class="container-fluid">
                 <div class="page-header">
                     <div class="left">
-                        <a href="javascript:void(0)" class="icon menu_toggle mr-3"><i class="fa  fa-align-left"></i></a>
-                        <h1 class="page-title">Dashboard</h1>
+                        <a href="javascript:void(0)" class="icon menu_toggle mr-3"></a>
+                        <h1 class="page-title">{% block header %}Dashboard {% endblock %}</h1>
 
                     </div>
                     <div class="right">
                         <div class="input-icon xs-hide mr-4">
                             <input type="text" class="form-control" placeholder="Search for...">
-                            <span class="input-icon-addon"><i class="fe fe-search"></i></span>
+                            <span class="input-icon-addon"><i class="fa fa-search"></i></span>
                         </div>
                         <div class="notification d-flex">
                             <div class="dropdown d-flex">
@@ -397,12 +451,12 @@
                             <div class="dropdown d-flex">
                                 <a class="nav-link icon d-none d-md-flex btn btn-default btn-icon ml-2" data-toggle="dropdown"><i class="fa fa-user"></i></a>
                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                    <a class="dropdown-item" href="page-profile.html"><i class="dropdown-icon fe fe-user"></i> Profile</a>
-                                    <a class="dropdown-item" href="javascript:void(0)"><span class="float-right"><span class="badge badge-primary">6</span></span><i class="dropdown-icon fe fe-mail"></i> Inbox</a>
-                                    <a class="dropdown-item" href="javascript:void(0)"><i class="dropdown-icon fe fe-send"></i> Message</a>
+                                    <a class="dropdown-item" href="page-profile.html"><i class="dropdown-icon fa fa-user"></i> Profile</a>
+                                    <a class="dropdown-item" href="javascript:void(0)"><span class="float-right"><span class="badge badge-primary">6</span></span><i class="dropdown-icon fa fa-mail"></i> Inbox</a>
+                                    <a class="dropdown-item" href="javascript:void(0)"><i class="dropdown-icon fa fa-send"></i> Message</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="javascript:void(0)"><i class="dropdown-icon fe fe-help-circle"></i> Need help?</a>
-                                    <a class="dropdown-item" href="login.html"><i class="dropdown-icon fe fe-log-out"></i> Sign out</a>
+                                    <a class="dropdown-item" href="javascript:void(0)"><i class="dropdown-icon fa fa-help-circle"></i> Need help?</a>
+                                    <a class="dropdown-item" href="{% url 'logout' %}"><i class="dropdown-icon fa fa-log-out"></i> Sign out</a>
                                 </div>
                             </div>
                         </div>
@@ -410,117 +464,173 @@
                 </div>
             </div>
         </div>
-        <div class="section-body">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="d-md-flex justify-content-between align-items-center">
-                            <ul class="nav nav-tabs page-header-tab">
-                                <li class="nav-item"><a class="nav-link active" id="TaskBoard-tab" data-toggle="tab" href="#TaskBoard-list">List View</a></li>
+        {% block body %}
+            <div class="section-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="d-md-flex justify-content-between align-items-center">
+                                <ul class="nav nav-tabs page-header-tab">
+                                    <!-- <li class="nav-item"><a class="nav-link active" id="TaskBoard-tab" data-toggle="tab" href="#TaskBoard-list">List View</a></li> -->
 
-                            </ul>
-                            <div class="header-action d-flex">
-                                <div class="input-group mr-2">
-                                    <input type="text" class="form-control" placeholder="Search...">
+                                </ul>
+                                <div class="header-action d-flex">
+                                    <button type="button" style="margin-top: 20px;" class="btn btn-primary" data-toggle="modal" data-target="#addtask"><i class="fa fa-plus mr-2"></i>Add Project</button>
                                 </div>
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addtask"><i class="fe fe-plus mr-2"></i>Add</button>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row clearfix mt-2">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6>Critical</h6>
-                                <input type="text" class="knob" value="23" data-width="90" data-height="90" data-thickness="0.1" data-fgColor="#ff0000">
+                    <div class="row clearfix mt-2">
+                        <div class="col-lg-4 col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>Overal Progress</h6>
+                                    <div class="container">
+                                        <div class="circle_percent" data-percent="{{ projects_score }}">
+                                            <div class="circle_inner">
+                                                <div class="round_per"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6>In progress</h6>
-                                <input type="text" class="knob" value="43" data-width="90" data-height="90" data-thickness="0.1" data-fgColor="#FFBF00">
+                        
+                        <div class="col-lg-4 col-md-4" id="progress_value">
+                            <div class="card" id="card_progress">
+                                <div class="card-body text-center">
+                                    <h6 id="project_name" >{{object_list.first.project_name}} Progress</h6>
+                                    <div class="container">
+
+                                        <div class="circle_percent" id="data_prog" data-percent="{{object_list.first.project_progress}}">
+                                            <div class="circle_inner">
+                                                <div class="round_per"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6>Completed</h6>
-                                <input type="text" class="knob" value="83" data-width="90" data-height="90" data-thickness="0.1" data-fgColor="#00FF00">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6>In Completed</h6>
-                                <input type="text" class="knob" value="12" data-width="90" data-height="90" data-thickness="0.1" data-fgColor="#ff0000">
+                        <div class="col-lg-4 col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6  id="highlighted_sentiment">{{object_list.first.project_name}} Sentiment : </h6>
+                                    <div class="container">
+                                        <span  id="emoji" style='font-size:164px;'>&#128515;</span>
+                                    </div>
+                                    <script>
+                                        updateEmoji('{{object_list.first.sentiment}}', '{{object_list.first.project_name}}', '{{object_list.first.project_progress}}');
+                                    </script>
+                                    
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="section-body">
-            <div class="container-fluid">
-                <div class="tab-content taskboard">
-                    <div class="tab-pane fade show active" id="TaskBoard-list" role="tabpanel"      >
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-vcenter mb-0 table_custom spacing8 text-nowrap">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Task</th>
-                                                <th>Team</th>
-                                                <th>Duration</th>
-                                                <th class="w200"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for project in object_list %}
+            <div class="section-body">
+                <div class="container-fluid">
+                    <div class="tab-content taskboard">
+                        <div class="tab-pane fade show active" id="TaskBoard-list" role="tabpanel"      >
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-vcenter mb-0 table_custom spacing8 text-nowrap">
+                                            <thead>
                                                 <tr>
-                                                <td>{{ project.id }}</td>
-                                                <td>
-                                                    <h6 class="mb-0">{{ project.project_name }}</h6>
-                                                    <span>Server is down currently..</span>
-                                                </td>
-                                                <td>
-                                                    <ul class="list-unstyled team-info mb-0">
-                                                        <li><img src="{% static 'assets/images/xs/avatar1.png' %}" data-toggle="tooltip" data-placement="top" title="Avatar" alt="Avatar"></li>
-                                                        <li><img src="{% static 'assets/images/xs/avatar2.jpg' %}" data-toggle="tooltip" data-placement="top" title="Avatar" alt="Avatar"></li>
-                                                        <li><img src="{% static 'assets/images/xs/avatar5.jpg' %}" data-toggle="tooltip" data-placement="top" title="Avatar" alt="Avatar"></li>
-                                                    </ul>
-                                                </td>
-                                                <td>
-                                                    <div class="text-info">Start: {{ project.project_start_date }}</div>
-                                                    <div class="text-pink">End: {{ project.project_start_date }}</div>
-                                                </td>
-
-                                                <td>
-                                                    <div class="clearfix">
-                                                        <div class="float-left"><strong>{{ project.project_progress}} %</strong></div>
-                                                        <div class="float-right"><small class="text-muted">Progress</small></div>
-                                                    </div>
-                                                    <div class="progress progress-xs">
-                                                        <div class="progress-bar bg-azure" role="progressbar" style="width: {{ project.project_progress}}%" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
+                                                    <th>#</th>
+                                                    <th>Task</th>
+                                                    <th>Team</th>
+                                                    <th>Duration</th>
+                                                    <th class="w200">ACTION</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for project in object_list %}
+                                                
+                                                    <tr>
+                                                        <td>{{ project.id }}</td>
+                                                        
+                                                        <td>
+                                                            <div class="card" style="display: none;" id="{{project.project_name}}_percent">
+                                                                <div class="card-body text-center"  >
+                                                                    <h6 id="project_name" >{{project.project_name}} Progress</h6>
+                                                                    <div class="container">
+                                    
+                                                                        <div class="circle_percent" id="data_prog" data-percent="{{project.project_progress}}">
+                                                                            <div class="circle_inner">
+                                                                                <div class="round_per"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <a href="#" onclick="updateEmoji('{{project.sentiment}}', '{{ project.project_name }}', '{{project.project_progress}}', true)"><h6 class="mb-0">{{ project.project_name }}</h6> </a>
+                                                            {% if project.server_status  %}
+                                                                <span>Server is currently up</span>
+                                                            {% endif %}
+                                                            {% if not project.server_status  %}
+                                                                <span>Server is currently down</span>
+                                                            {% endif %}
+                                                            <div class="modal fade" id="addtask{{project.id}}" tabindex="-1" role="dialog">
+                                                                <div class="modal-dialog" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h6 class="title" id="defaultModalLabel">{{project.project_name}}</h6>
+                                                                        </div>
+                                                                        <form method="GET" action="{% url 'delete_project' %}{{project.id}}/">
+                                                                            {% csrf_token %}
+                                                                            <div class="modal-body">
+                                                                                <div class="row clearfix">
+                                                                                    <div class="col-12">
+                                                                                        <div class="card">
+                                                                                            
+                                                                                            <div class="card-body">
+                                                                                                <span>{{project.description}}</span>
+                                                                                            </div>                        
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    
+                                                                                </div>
+                                                                            </div>
+                                                                        
+                                                                        <div class="modal-footer">
+                                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                                        </div>
+                                                                    </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <ul class="list-unstyled team-info mb-0">
+                                                                {% for member in project.project_team.all %}
+                                                                    <li><img src="http://127.0.0.1:8000{{ member.image.url }}" data-toggle="tooltip" style="height: 32px; width: 32px;" data-placement="top" title="{{member.first_name}}{{member.last_name}}" alt="Avatar"></li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </td>
+                                                        <td>
+                                                            <div class="text-info">Start: {{ project.project_start_date }}</div>
+                                                            <div class="text-pink">End: {{ project.project_start_date }}</div>
+                                                        </td>
+                                                        <td>
+                                                            <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#addtask{{project.id}}">Detail</button>
+                                                        </td>
+                                                    </tr>
+                                                </a>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endblock %}
     </div>
 </div>
 
@@ -529,50 +639,49 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="title" id="defaultModalLabel">Add New Task</h6>
+                <h6 class="title" id="defaultModalLabel">Add New Project</h6>
             </div>
-            <div class="modal-body">
-                <div class="row clearfix">
-                    <div class="col-12">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Task no.">
+            <form method="POST" action="{% url 'add_project' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row clearfix">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <input type="text" name="project_name" class="form-control" placeholder="Project name">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Job title">
+                        <div class="col-12">
+                            
+                            <div class="form-group">
+                                <textarea class="form-control" name="description" placeholder="Description"></textarea>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-group">
-                            <textarea class="form-control" placeholder="Description"></textarea>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <select class="form-control show-tick" name="project_team">
+                                    <option>Select Team Lead</option>
+                                    {% for user in company_members %}
+                                        <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-group">
-                            <select class="form-control show-tick">
-                                <option>Select Team</option>
-                                <option>Mr Mupini</option>
-                                 <option>Rufaro Satoro</option>
-                                <option>Takudzwa Garnet </option>
-                                 <option>Mr Shadow</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <label>Range</label>
-                        <div class="input-daterange input-group" data-provide="datepicker">
-                            <input type="text" class="form-control" name="start">
-                            <span class="input-group-addon"> to </span>
-                            <input type="text" class="form-control" name="end">
+                        <div class="col-12">    
+                            <label>Range</label>
+                            <div class="input-daterange input-group" data-provide="datepicker">
+                                <input type="text" class="form-control" name="project_start_date">
+                                <span class="input-group-addon"> to </span>
+                                <input type="text" class="form-control" name="project_end_date">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Add</button>
+                <button type="submit" class="btn btn-primary">Add</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
+        </form>
         </div>
     </div>
 </div>
@@ -586,6 +695,40 @@
 <script src="{% static 'assets/js/core.js' %}"></script>
 <script src="{% static 'assets/js/page/sortable-nestable.js' %}"></script>
 <script src="{% static 'assets/js/chart/knobjs.js' %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script>
+$(".circle_percent").each(function() {
+    var $this = $(this),
+		$dataV = $this.data("percent"),
+		$dataDeg = $dataV * 3.6,
+		$round = $this.find(".round_per");
+	$round.css("transform", "rotate(" + parseInt($dataDeg + 180) + "deg)");	
+	$this.append('<div class="circle_inbox"><span class="percent_text"></span></div>');
+	$this.prop('Counter', 0).animate({Counter: $dataV},
+	{
+		duration: 2000, 
+		easing: 'swing', 
+		step: function (now) {
+            $this.find(".percent_text").text(Math.ceil(now)+"%");
+        }
+    });
+	if($dataV >= 51){
+		$round.css("transform", "rotate(" + 360 + "deg)");
+		setTimeout(function(){
+			$this.addClass("percent_more");
+		},1000);
+		setTimeout(function(){
+			$round.css("transform", "rotate(" + parseInt($dataDeg + 180) + "deg)");
+		},1000);
+	} 
+});
+
+</script>
+
+
+
 
 {% block scripts %}
 

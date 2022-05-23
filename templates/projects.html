@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load static %}
+{% load templatetags %}
+{% block body %}
+
+<div class="section-body mt-3">
+    <div class="container-fluid">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="Project-OnGoing" role="tabpanel">
+                <div class="row">
+                    {% for project in object_list %}
+                    <div class="col-lg-6 col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">{{project.project_name}}</h3>
+                                <div class="card-options">
+                                    <label class="custom-switch m-0">
+                                        {% if project.server_status %}
+                                            <input type="checkbox" value="1" class="custom-switch-input" checked>
+                                            <span class="custom-switch-indicator"></span>
+                                        {% endif %}
+
+                                        {% if not project.server_status %}
+                                            <a href="{% url 'toggle' %}{{project.id}}">
+                                                <input type="checkbox" value="0" class="custom-switch-input" >
+                                                <span class="custom-switch-indicator"></span>
+                                            </a>
+                                            
+                                        {% endif %}
+                                        
+                                    </label>
+                                    <a href="#" class="card-options-collapse" data-toggle="card-collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="modal fade" id="addmember_{{project.id}}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="title" id="defaultModalLabel">Add Team Member</h6>
+                                            </div>
+                                            <form method="POST" action="{% url 'add_user_to_project' %}">
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="row clearfix">
+                                                        <div class="col-12">
+                                                            <input type="text" value="{{project.id}}" style="display: none;" name="project_id"></input>
+                                                            <div class="form-group">
+                                                                <select class="form-control show-tick" name="project_team">
+                                                                    <option>Select Team Member</option>
+                                                                    {% for user in company_members %}
+                                                                        {% if user not in project.project_team.all %}
+                                                                            <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Add</button>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a type="submit" href="#addmember_{{project.id}}" data-toggle="modal" data-target="#addmember_{{project.id}}"><span class="tag tag-blue mb-3">Add Member</span></a>
+                                <a href="{% url 'all_comments' %}{{project.id}}"><span class="tag tag-pink mb-3">View Comments</span></a>
+                                <p>{{project.description}}</p>
+                                <div class="row">
+                                    <div class="col-5 py-1"><strong>Created:</strong></div>
+                                    <div class="col-7 py-1">{{ project.project_start_date }}</div>
+                                    <div class="col-5 py-1"><strong>Team Lead:</strong></div>
+                                    <div class="col-7 py-1">{{project.project_team.first.first_name}} {{project.project_team.first.last_name}}</div>
+                                    <div class="col-5 py-1"><strong>Comments:</strong></div>
+                                    <div class="col-7 py-1"><strong>{{project.project_comments | count}}</strong></div>
+                                    <!-- <div class="col-5 py-1"><strong>Bug:</strong></div>
+                                    <div class="col-7 py-1"><strong>5</strong></div> -->
+                                    <div class="col-5 py-1"><strong>Team:</strong></div>
+                                    <div class="col-7 py-1">
+                                        <div class="avatar-list avatar-list-stacked">
+                                            {% for member in project.project_team.all %}
+                                                <img class="avatar avatar-sm" src="http://127.0.0.1:8000{{ member.image.url }}" style="height: 32px; width: 32px;" data-toggle="tooltip" title="" data-original-title="Avatar Name"/>
+                                            {% endfor %}
+                                            
+                                        </div>
+                                    </div>
+                                </div>                                        
+                            </div>
+                            <div class="card-footer">
+                                <div class="clearfix">
+                                    <div class="float-left"><strong>{{project.project_progress}}%</strong></div>
+                                    <div class="float-right"><small class="text-muted">Progress</small></div>
+                                </div>
+                                <div class="progress progress-xs">
+                                    <div class="progress-bar bg-green" role="progressbar" style="width: {{project.project_progress}}%" aria-valuenow="{{project.project_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                </div>
+                
+            </div>
+            <div class="tab-pane fade" id="Project-UpComing" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped table-vcenter mb-0 text-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th>Owner</th>
+                                                <th>Milestone</th>
+                                                <th class="w100">Work</th>
+                                                <th class="w100">Duration</th>
+                                                <th>Priority</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar1.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Isidore Dilao</span></td>
+                                                <td>Account receivable</td>
+                                                <td><span>30:00</span></td>
+                                                <td>30:0 hrs</td>
+                                                <td><span class="text-warning">Medium</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar2.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Maricel Villalon</span></td>
+                                                <td>Account receivable</td>
+                                                <td><span>68:00</span></td>
+                                                <td>105:0 hrs</td>
+                                                <td><span class="text-danger">High</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar3.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Theresa Wright</span></td>
+                                                <td>Approval site</td>
+                                                <td><span>74:00</span></td>
+                                                <td>89:0 hrs</td>
+                                                <td><span>None</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar4.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Jason Porter</span></td>
+                                                <td>Final touch up</td>
+                                                <td><span>30:00</span></td>
+                                                <td>30:0 hrs</td>
+                                                <td><span>None</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar5.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Annelyn Mercado</span></td>
+                                                <td>Account receivable</td>
+                                                <td><span>30:00</span></td>
+                                                <td>30:0 hrs</td>
+                                                <td><span>None</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar6.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Sean Black</span></td>
+                                                <td>Basement slab preparation</td>
+                                                <td><span>88:00</span></td>
+                                                <td>88:0 hrs</td>
+                                                <td><span>None</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar7.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>Scott Ortega</span></td>
+                                                <td>Account receivable</td>
+                                                <td><span>56:00</span></td>
+                                                <td>125:0 hrs</td>
+                                                <td><span class="text-warning">Medium</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="assets/images/xs/avatar8.jpg" alt="Avatar" class="w30 rounded-circle mr-2"> <span>David Wallace</span></td>
+                                                <td>Account receivable</td>
+                                                <td><span>30:00</span></td>
+                                                <td>30:0 hrs</td>
+                                                <td><span>None</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="Project-add" role="tabpanel">
+
+            </div>
+        </div>
+    </div>            
+</div>
+
+
+{% endblock %}

@@ -4,6 +4,8 @@ import os
 
 from services.sentiment import create_model
 
+# from services.sentiment import create_model
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -64,12 +66,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": 'project_status',
-        "USER": 'root',
-        "PASSWORD": '',
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "USER": 'postgres',
+        "PASSWORD": 'postgres',
+        "HOST": "localhost",
+        "PORT": 5432,
     }
 }
 
@@ -151,9 +153,11 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = Path.joinpath(BASE_DIR, "media")
 MEDIA_URL = '/media/'
+LOGIN_URL = 'login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# MODEL = create_model()
+MODEL = create_model()

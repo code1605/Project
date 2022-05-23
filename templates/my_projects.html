@@ -1,0 +1,229 @@
+<!doctype html>
+{% load static %}
+{% load templatetags %}
+<html lang="en" dir="ltr">
+
+<!-- soccer/project/project-dashboard.html  07 Jan 2020 03:41:02 GMT -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<link rel="icon" href="favicon.ico" type="image/x-icon"/>
+
+<title>Project Management Dashboard</title>
+
+<!-- Bootstrap Core and vandor -->
+<link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/plugins/nestable/jquery-nestable.css' %}"/>
+<link rel="stylesheet" href="{% static 'assets/plugins/dropify/css/dropify.min.css' %}">
+
+<!-- Core css -->
+<link rel="stylesheet" href="{% static 'assets/css/main.css' %}"/>
+<link rel="stylesheet" href="{% static 'assets/css/index.css' %}"/>
+<link rel="stylesheet" href="{% static 'assets/css/theme1.css' %}"/>
+    {% block styles %}
+    {% endblock %}
+   
+</head>
+
+
+<body class="font-montserrat">
+
+  
+<!-- Page Loader -->
+<div class="page-loader-wrapper">
+    <div class="loader">
+    </div>
+</div>
+
+<div id="main_content">
+
+    <div id="header_top" class="header_top">
+        <div class="container">
+            <div class="hright">
+                <div class="dropdown">
+                    <a href="javascript:void(0)" class="nav-link icon menu_toggle"><i class="fa  fa-align-left"></i></a>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="left-sidebar" class="sidebar ">
+        <h5 class="brand-name">Project Statuses </h5>
+        <nav id="left-sidebar-nav" class="sidebar-nav">
+            <ul class="metismenu">
+                <li class="g_heading">Projects</li>
+                {% for proj in projects %}
+                    <li><a href="{% url 'my_projects' %}{{proj.id}}"><i class="fa fa-list-ol"></i><span>{{proj.project_name}}</span></a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+
+    <div class="page">
+        <div id="page_top" class="section-body top_dark">
+            <div class="container-fluid">
+                <div class="page-header">
+                    <div class="left">
+                        <a href="javascript:void(0)" class="icon menu_toggle mr-3"></a>
+                        <h1 class="page-title">{% block header %}My Projects {% endblock %}</h1>
+
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+        {% block body %}
+        <div class="section-light py-3 chat_app">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <div class="card bg-none b-none">
+                            <div class="card-header bline bg-none">
+                                <h3 class="card-title">{{ project.project_name }} Channel <small> {{ project.project_start_date }} - {{ project.project_end_date }}</small></h3>
+                                <div class="card-options">
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#addcomment"><i class="fa fa-plus"></i></button>
+                                    <a href="{% url 'my_projects'%}{{proj.id}}" class="p-1"><i class="fa fa-refresh"></i></a>
+                                    <div class="dropdown d-flex">
+                                        <a class="nav-link icon" data-toggle="dropdown"><i class="fa fa-user"></i></a>
+                                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                                            <a class="dropdown-item" href="{% url 'logout' %}"><i class="dropdown-icon fa fa-log-out"></i> Sign out</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                        
+                            <div class="chat_windows">
+                                
+                                <ul class="mb-0" style="height: calc(100vh - 150px) !important">
+                                    {% for comment in comments %}
+        
+                                    {% if comment.author == user %}
+                                        <li class="my-message">
+                                            <div class="message">
+                                                <p class="bg-light-gray">{{comment.comment}}</p>
+                                                
+                                                <span class="time">{{comment.date}}</span>
+                                            </div>
+                                        </li>
+                                       
+                                    {% endif %}
+                                    <div>
+                                        <p id="last_comment_id"></p>
+                                    </div>
+        
+                                        {% if comment.author != user %}
+        
+                                            <li class="other-message">
+                                                <img class="avatar mr-3" src="http://127.0.0.1:8000{{ comment.author.image.url }}" alt="">
+                                                <div class="message">
+                                                    <p class="bg-light-blue">{{comment.comment}}</p>
+                                                    <span class="time" >{{comment.date}}</span>
+                                                </div>
+                                            </li>  
+                                            
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        </div>    
+        
+        {% endblock %}
+    </div>
+</div>
+
+<!-- Add New Task -->
+<div class="modal fade" id="addcomment" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="title" id="defaultModalLabel">Comment</h6>
+            </div>
+
+            <form  method="post" action="{% url 'my_projects' %}">
+                {% csrf_token %}
+                <div class="chat-message clearfix">
+                
+                        <div class="input-group mb-0">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <textarea class="form-control" name="comment" placeholder="Enter comment here..."></textarea>
+                            </div>
+                            </div>
+                            <input type="text" value="{{project.id}}" name="project_id" style="display: none">
+                            
+                        </div>
+                    
+                </div>
+                <input class="btn btn-primary btn-block" type="submit" value="Comment">
+        </form>
+            
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'assets/bundles/lib.vendor.bundle.js' %}"></script>
+
+<script src="{% static 'assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/bundles/knobjs.bundle.js' %}"></script>
+<script src="{% static 'assets/bundles/nestable.bundle.js' %}"></script>
+
+<script src="{% static 'assets/js/core.js' %}"></script>
+<script src="{% static 'assets/js/page/sortable-nestable.js' %}"></script>
+<script src="{% static 'assets/js/chart/knobjs.js' %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script>
+$(".circle_percent").each(function() {
+    var $this = $(this),
+		$dataV = $this.data("percent"),
+		$dataDeg = $dataV * 3.6,
+		$round = $this.find(".round_per");
+	$round.css("transform", "rotate(" + parseInt($dataDeg + 180) + "deg)");	
+	$this.append('<div class="circle_inbox"><span class="percent_text"></span></div>');
+	$this.prop('Counter', 0).animate({Counter: $dataV},
+	{
+		duration: 2000, 
+		easing: 'swing', 
+		step: function (now) {
+            $this.find(".percent_text").text(Math.ceil(now)+"%");
+        }
+    });
+	if($dataV >= 51){
+		$round.css("transform", "rotate(" + 360 + "deg)");
+		setTimeout(function(){
+			$this.addClass("percent_more");
+		},1000);
+		setTimeout(function(){
+			$round.css("transform", "rotate(" + parseInt($dataDeg + 180) + "deg)");
+		},1000);
+	} 
+});
+
+</script>
+
+<script>
+    // auto scroll to element cith id last_comment_id
+    $(document).ready(function(){
+        var last_comment_id = $('#last_comment_id').text();
+        $('#'+last_comment_id).scrollTop($('#'+last_comment_id)[0].scrollHeight);
+    });
+</script>
+
+
+{% block scripts %}
+
+{% endblock %}
+</body>
+
+</html>
